@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CRUD - API PHP - MySQL</title>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.css">
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.17.1/axios.min.js"></script>
+    </head>
+    <body>
+        <div id="root">
+            <div class="">
+                <div class="crud_header">
+                    <h1 class="left">Lista de Usuários</h1>
+                    <button class="right addnew" @click="showingModal = true;">Adicionar</button>
+                    <div class="fix"></div>
+                </div>		
+                <hr>
+                <p class="errorMessage" v-if="errorMessage">{{ errorMessage }}</p>
+                <p class="successMessage" v-if="successMessage">{{ successMessage }}</p>
+                <table id="listDataTable" class="list display table-bordered nowrap" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Sobrenome</th>
+                            <th>CPF</th>
+                            <th>E-mail</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="citizen in citizens">
+                            <td>{{ citizen.id }}</td>
+                            <td>{{ citizen.name }}</td>
+                            <td>{{ citizen.surname }}</td>
+                            <td>{{ citizen.cpf }}</td>
+                            <td>{{ citizen.email }}</td>
+                            <td>
+                                <button @click="showingeditModal = true; select(citizen)">Editar</button>
+                                <button @click="showingdeleteModal = true; select(citizen)">Deletar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="fix"></div>
+                
+                <!-- modal add -->
+                <div class="modal col-md-6" id="addmodal" v-if="showingModal">
+                    <div class="modalheading">
+                        <p class="left">Novo</p>
+                        <p class="right close" @click="showingModal = false;">x</p>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="modalbody">
+                        <div class="modalcontent">
+                            <table class="form">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Nome" id="name-add" v-model="newapi.name"></td>
+                                    <th>Sobrenome</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Sobrenome" id="surname-add" v-model="newapi.surname"></td>
+                                    <th>CPF</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="CPF" id="cpf-add" v-mask="'###.###.###-##'" v-model="newapi.cpf"></td>
+                                </tr>
+                                <tr>
+                                    <th>E-mail</th>
+                                    <th>:</th>
+                                    <td><input type="email" placeholder="E-mail" id="email-add" v-model="newapi.email"></td>
+                                    <th>Telefone</th>
+                                    <th>:</th>
+                                    <td><input type="tel" placeholder="Telefone" id="phone-add" v-mask="'(##) ####.####'" v-model="newapi.phone"></td>
+                                    <th>Celular</th>
+                                    <th>:</th>
+                                    <td><input type="tel" placeholder="Celular" id="cellphone-add" v-mask="'(##) # ####.####'" v-model="newapi.cellphone"></td>
+                                </tr>
+                                <tr>
+                                    <th>CEP</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="CEP" id="zipcode-add" v-on:change="searchCEP" v-mask="'#####-###'" v-model="newapi.zipcode"></td>
+                                    <th>Logradouro</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Logradouro" id="logradouro-add" v-model="newapi.logradouro"></td>
+                                </tr>
+                                <tr>
+                                    <th>Bairro</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Bairro" id="neighborhood-add" v-model="newapi.neighborhood"></td>
+                                    <th>Cidade</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Cidade" id="city-add" v-model="newapi.city"></td>
+                                    <th>Estado</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Estado" id="state-add" v-model="newapi.state"></td>
+                                </tr>
+                            </table>
+                            <button class="center"  @click="showingModal = false; save();">Salvar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- modal edit -->
+                <div class="modal col-md-6" id="editmodal" v-if="showingeditModal">
+                    <div class="modalheading">
+                        <p class="left">Editar</p>
+                        <p class="right close" @click="showingeditModal = false;">x</p>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="modalbody">
+                        <div class="modalcontent">
+                            <table class="form">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Nome" id="name-edi" v-model="clicked.name"></td>
+                                    <th>Sobrenome</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Sobrenome" id="surname-edi" v-model="clicked.surname"></td>
+                                    <th>CPF</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="CPF" id="cpf-edi" v-mask="'###.###.###-##'" v-model="clicked.cpf"></td>
+                                </tr>
+                                <tr>
+                                    <th>E-mail</th>
+                                    <th>:</th>
+                                    <td><input type="email" placeholder="E-mail" id="email-edi" v-model="clicked.email"></td>
+                                    <th>Telefone</th>
+                                    <th>:</th>
+                                    <td><input type="tel" placeholder="Telefone" id="phone-edi" v-mask="'(##) ####.####'" v-model="clicked.phone"></td>
+                                    <th>Celular</th>
+                                    <th>:</th>
+                                    <td><input type="tel" placeholder="Celular" id="cellphone-edi" v-mask="'(##) # ####.####'" v-model="clicked.cellphone"></td>
+                                </tr>
+                                <tr>
+                                    <th>CEP</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="CEP" id="zipcode-edi" v-on:change="searchCEP" v-mask="'#####-###'" v-model="clicked.zipcode"></td>
+                                    <th>Logradouro</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Logradouro" id="logradouro-edi" v-model="clicked.logradouro"></td>
+                                </tr>
+                                <tr>
+                                    <th>Bairro</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Bairro" id="neighborhood-edi" v-model="clicked.neighborhood"></td>
+                                    <th>Cidade</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Cidade" id="city.edi" v-model="clicked.city"></td>
+                                    <th>Estado</th>
+                                    <th>:</th>
+                                    <td><input type="text" placeholder="Estado" id="state-edi" v-model="clicked.state"></td>
+                                </tr>
+                            </table>
+                            <button class="center" @click="showingeditModal = false; update()">Atualizar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- modal delete -->
+                <div class="modal col-md-6" id="deletemodal" v-if="showingdeleteModal">
+                    <div class="modalheading">
+                        <p class="left">Deletar</p>
+                        <p class="right close" @click="showingdeleteModal = false;">x</p>
+                        <div class="fix"></div>
+                    </div>
+                    <div class="modalbody">
+                        <div class="modalcontent">
+                            <div class="margin"></div>
+                            <h3 class="center">Você deseja realmente deletar essa registro ?</h3>
+                            <div class="margin"></div>
+                            <h4 class="center">{{ clicked.name }}</h4>
+                            <div class="margin"></div>
+                            <div class="col-md-6 center">
+                                <button class="left" @click="showingdeleteModal = false; delete2SOW()">SIM</button>
+                                <button class="right" @click="showingdeleteModal = false;">NÃO</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.13/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/v-mask/2.0.2/v-mask.min.js"></script>
+        <script type="text/javascript" src="app.js"></script>
+    </body>
+</html>
