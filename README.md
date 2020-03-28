@@ -1,5 +1,8 @@
 ## CRUD - API-PHP - MySQL
 
+![version](https://img.shields.io/badge/version-1.0.0-blue.svg) 
+[![license](https://img.shields.io/apm/l/vim-mode.svg)](LICENSE)
+
 CRUD - basico usando a lib javascript Vue.js, e chamando uma API em PHP, e salvando no banco de dados MySQL.
 
 Para realizar o CRUD pelo postman, devesse usar os seguintes methods abaixo.
@@ -55,6 +58,9 @@ Deleta as informações selecionadas, escolha a opção Body > x-www-form-urlenc
 
 id:1
 
+## Browser Suportados
+
+<img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/chrome.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/firefox.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/edge.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/safari.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/opera.png" width="64" height="64">
 
 ## Autor
 <table>
